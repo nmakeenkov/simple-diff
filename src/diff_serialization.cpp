@@ -7,6 +7,7 @@
 namespace
 {
 const std::string EMPTY_HEX = "    ";
+const size_t NOT_SHOWN = std::numeric_limits<size_t>::max();
 
 std::byte readHex(const std::string& s)
 {
@@ -117,21 +118,37 @@ std::string simple_diff::Diff::toHumanReadable() const
         size_t targetEnd = sourceEnd + targetIndexOffset;
 
         result += "@@ " + std::to_string(sourceStart) + ":" + std::to_string(sourceEnd) + " "
-                + std::to_string(targetStart) + ":" + std::to_string(targetEnd) + " @@\n";
+                    + std::to_string(targetStart) + ":" + std::to_string(targetEnd) + " @@\n";
 
-        size_t lastShownIndex = sourceStart;
-        result += "  " + getHexRepresentation(source_[sourceStart]) + " " + getHexRepresentation(source_[sourceStart]) + "\n";
+        size_t lastShownIndex;
+        if (changes_[i].index() == 0)
+        {
+            lastShownIndex = NOT_SHOWN;
+        }
+        else
+        {
+            lastShownIndex = sourceStart;
+            result += "  " + getHexRepresentation(source_[sourceStart]) + " "
+                    + getHexRepresentation(source_[sourceStart]) + "\n";
+        }
 
         for (size_t k = i; k < j; ++k)
         {
             size_t needShowIndex = getMinShownIndex(changes_[k]);
-            while (lastShownIndex < needShowIndex)
+            if (needShowIndex == 0 && changes_[k].index() == 0)
             {
-                ++lastShownIndex;
-                result += "  " + getHexRepresentation(source_[lastShownIndex]) + " "
-                        + getHexRepresentation(source_[lastShownIndex]) + "\n";
+                // no op
             }
-            lastShownIndex = needShowIndex;
+            else
+            {
+                while (lastShownIndex < needShowIndex)
+                {
+                    ++lastShownIndex;
+                    result += "  " + getHexRepresentation(source_[lastShownIndex]) + " "
+                              + getHexRepresentation(source_[lastShownIndex]) + "\n";
+                }
+                lastShownIndex = needShowIndex;
+            }
 
             switch (changes_[k].change())
             {
@@ -139,12 +156,12 @@ std::string simple_diff::Diff::toHumanReadable() const
                     result += "+ " + EMPTY_HEX + " " + getHexRepresentation(changes_[k].symbol()) + "\n";
                     break;
                 case simple_diff::Change::REMOVE:
-                    assert(lastShownIndex + 1 == changes_[k].index());
+                    assert(lastShownIndex == NOT_SHOWN || lastShownIndex + 1 == changes_[k].index());
                     lastShownIndex = changes_[k].index();
                     result += "- " + getHexRepresentation(source_[lastShownIndex]) + " " + EMPTY_HEX + "\n";
                     break;
                 case simple_diff::Change::REPLACE:
-                    assert(lastShownIndex + 1 == changes_[k].index());
+                    assert(lastShownIndex == NOT_SHOWN || lastShownIndex + 1 == changes_[k].index());
                     lastShownIndex = changes_[k].index();
                     result += "* " + getHexRepresentation(source_[lastShownIndex]) + " "
                               + getHexRepresentation(changes_[k].symbol()) + "\n";
