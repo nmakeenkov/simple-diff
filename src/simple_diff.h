@@ -59,7 +59,7 @@ public:
     std::string toHumanReadable() const;
 };
 
-Diff diffFromHumanReadableString(const std::string& string);
+Diff diffFromHumanReadableString(const std::vector<std::byte>& source, const std::string& string);
 
 Diff computeDiff(const std::vector<std::byte>& source, const std::vector<std::byte>& target);
 

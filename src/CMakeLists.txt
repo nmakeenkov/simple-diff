@@ -3,7 +3,7 @@ add_library(simple_diff "")
 target_sources(
         simple_diff
     PRIVATE
-        longest_common_sub_sequence.cpp diff_computation.cpp
+        longest_common_sub_sequence.cpp diff_computation.cpp diff_serialization.cpp
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/simple_diff.h
     )
