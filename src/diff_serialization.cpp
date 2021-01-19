@@ -184,7 +184,7 @@ simple_diff::Diff simple_diff::diffFromHumanReadableString(const std::vector<std
                 index = readIndex(line);
                 break;
             case '+':
-                changes.emplace_back(index + 1, Change::ADD, getByte(line, false, false));
+                changes.emplace_back(index - 1, Change::ADD, getByte(line, false, false));
                 break;
             case '-':
                 changes.emplace_back(index++, Change::REMOVE, std::byte{0});
