@@ -141,9 +141,16 @@ std::string simple_diff::Diff::toHumanReadable() const
             }
             else
             {
-                while (lastShownIndex < needShowIndex)
+                while (lastShownIndex == NOT_SHOWN || lastShownIndex < needShowIndex)
                 {
-                    ++lastShownIndex;
+                    if (lastShownIndex == NOT_SHOWN)
+                    {
+                        lastShownIndex = 0;
+                    }
+                    else
+                    {
+                        ++lastShownIndex;
+                    }
                     result += "  " + getHexRepresentation(source_[lastShownIndex]) + " "
                               + getHexRepresentation(source_[lastShownIndex]) + "\n";
                 }
@@ -201,7 +208,7 @@ simple_diff::Diff simple_diff::diffFromHumanReadableString(const std::vector<std
                 index = readIndex(line);
                 break;
             case '+':
-                changes.emplace_back(index - 1, Change::ADD, getByte(line, false, false));
+                changes.emplace_back(index, Change::ADD, getByte(line, false, false));
                 break;
             case '-':
                 changes.emplace_back(index++, Change::REMOVE, std::byte{0});
