@@ -174,6 +174,10 @@ simple_diff::Diff simple_diff::diffFromHumanReadableString(const std::vector<std
     size_t index;
     while (std::getline(ss, line))
     {
+        if (line.empty())
+        {
+            continue;
+        }
         switch (line[0])
         {
             case '@':
